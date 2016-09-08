@@ -17,24 +17,20 @@ menu = ws.scrape(dd_menu)
 parsed = bs(menu.text, "html.parser")
 form = "http://cruiser.colgate.edu/" + parsed.select('form')[0]['action']
 options = parsed.select('option')
-#for opt in options:
-#    r = opt['value']
-#    print r
-#    if r == 'n/a' or r == '93|BreakTime  Tuesday & Friday':
-#        continue
-#    table = requests.post(form, data={"routes":r}).text
-#    parsed = bs(table,"html.parser")
-#    print parsed.select('div[class="stop_location"]')[0]
-#    print
-opt = options[1]
-r = opt['value']
-table = requests.post(form, data={"routes":r}).text
-parsed = bs(table,"html.parser")
-test = parsed.select('div[class="stop_location"]')[0]
-#print test.text
-for f in parsed.find_all('div'):
-    if f.get('class') != None:
-        if f.get('class') == ["stop_title"]:
-            stop = f.text
-        if f.get('class') == ["stop_times"]:
-            print stop + ": " + f.text
+schedule_by_stop = {}
+for opt in options:
+    r = opt['value']
+    print r
+    if r == 'n/a' or r == '93|BreakTime  Tuesday & Friday':
+        continue
+    name = [x for x in r.split() if len(x) == 1]
+    table = requests.post(form, data={"routes":r}).text
+    parsed = bs(table,"html.parser")
+    for f in parsed.find_all('div'):
+        if f.get('class') != None:
+            if f.get('class') == ["stop_title"]:
+                stop = f.text
+            if f.get('class') == ["stop_times"]:
+                if len(f.text) != 1:
+                    print name[0], stop, f.text
+    print
